@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 
 import Card from '../UI/Card/Card';
 import classes from './Login.module.css';
@@ -39,29 +39,28 @@ const Login = (props) => {
     isValid: null,
   });
 
-  const emailChangeHandler = ({ target }) => {
-    dispatchEmail({ type: 'USER_INPUT', value: target.value });
+  const { isValid: emailIsValid } = emailState;
+  const { isValid: passwordIsValid } = passwordState;
 
-    setFormIsValid(
-      target.value.includes('@') && passwordState.value.trim().length > 6
-    );
-  };
+  useEffect(() => {
+    const identifier = setTimeout(() => {
+      console.log('check form validity!');
+      setFormIsValid(emailIsValid && passwordIsValid);
+    }, 500);
 
-  const passwordChangeHandler = ({ target }) => {
-    dispatchPassword({ type: 'USER_INPUT', value: target.value });
+    return () => {
+      console.log('CLEANUP');
+      clearTimeout(identifier);
+    };
+  }, [emailIsValid, passwordIsValid]);
 
-    setFormIsValid(
-      emailState.value.includes('@') && target.value.trim().length > 6
-    );
-  };
+  const emailChangeHandler = ({ target }) => dispatchEmail({ type: 'USER_INPUT', value: target.value });
 
-  const validateEmailHandler = () => {
-    dispatchEmail({ type: 'INPUT_BLUR' });
-  };
+  const passwordChangeHandler = ({ target }) => dispatchPassword({ type: 'USER_INPUT', value: target.value });
 
-  const validatePasswordHandler = () => {
-    dispatchPassword({ type: 'INPUT_BLUR' });
-  };
+  const validateEmailHandler = () => dispatchEmail({ type: 'INPUT_BLUR' });
+
+  const validatePasswordHandler = () => dispatchPassword({ type: 'INPUT_BLUR' });
 
   const submitHandler = (event) => {
     event.preventDefault();
